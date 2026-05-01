@@ -117,7 +117,7 @@ ESCALATION_PATTERNS = [
     (
         "billing_or_refund",
         re.compile(
-            r"\b(refund|refunded|money back|payment issue|billing issue|invoice issue|chargeback|active charge dispute)\b",
+            r"\b(refund|refunded|money back|payment issue|issue with (?:my )?payment|give me my money|billing issue|invoice issue|chargeback|active charge dispute)\b",
             re.IGNORECASE,
         ),
         "billing, refund, or payment requests require human support",

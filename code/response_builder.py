@@ -33,9 +33,14 @@ class BuiltResponse:
 
 def _clean_sentence(sentence: str) -> str:
     cleaned = re.sub(r"<[^>]+>", " ", sentence)
+    cf_email_link = r"\[(?:\\.|[^\]])+\]\(/cdn-cgi/l/email-protection[^)]*\)"
+    cleaned = re.sub(rf"\s*(?:please\s+)?contact us at\s+{cf_email_link}", " ", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(cf_email_link, " ", cleaned)
+    cleaned = re.sub(r"/cdn-cgi/l/email-protection\S*", " ", cleaned)
     cleaned = re.sub(r"\[\]\([^)]+\)", " ", cleaned)
     cleaned = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", cleaned)
     cleaned = cleaned.replace("**", "")
+    cleaned = re.sub(r",\s*([.!?])", r"\1", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip(" -\t\r\n")
     if cleaned.startswith("#") or cleaned.startswith("---"):
         return ""
@@ -85,6 +90,12 @@ def _topic_bonus(query: str, sentence: str) -> int:
         for term in ("data retention", "retention period", "train our models", "used to train", "default", "retained indefinitely")
     ):
         bonus += 3
+
+    if "pause" in query_lower and "subscription" in query_lower:
+        if "pause" in sentence_lower or "cancel plan" in sentence_lower:
+            bonus += 4
+        if "cancel subscription" in sentence_lower or "cancel your subscription" in sentence_lower:
+            bonus -= 3
 
     return bonus
 
